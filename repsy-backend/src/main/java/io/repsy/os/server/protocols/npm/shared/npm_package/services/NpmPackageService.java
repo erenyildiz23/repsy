@@ -742,12 +742,17 @@ public class NpmPackageService extends AbstractNpmPackageService<UUID> {
       packageMaintainer = new PackageMaintainer();
       packageMaintainer.setPackageVersion(packageVersion);
       packageMaintainer.setName(name);
-      packageMaintainer.setEmail((String) maintainer.get(NpmConstants.EMAIL));
-      packageMaintainer.setUrl((String) maintainer.get(NpmConstants.URL));
+      // Email and url are nullable: a non-string value is stored as absent, not cast (RPS-2199).
+      packageMaintainer.setEmail(stringOrNull(maintainer.get(NpmConstants.EMAIL)));
+      packageMaintainer.setUrl(stringOrNull(maintainer.get(NpmConstants.URL)));
       packageMaintainer.setCreatedAt(Instant.now());
 
       this.packageMaintainerRepository.save(packageMaintainer);
     }
+  }
+
+  private static @Nullable String stringOrNull(final @Nullable Object value) {
+    return value instanceof final String string ? string : null;
   }
 
   private PackageVersion addVersion(
