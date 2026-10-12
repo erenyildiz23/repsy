@@ -119,15 +119,12 @@ public final class NpmPayloadUtils {
             (Map<String, Map<String, Object>>) payload.get(NpmConstants.ATTACHMENTS));
     final var attachment = attachments.entrySet().iterator().next().getValue();
 
-    var length = (Integer) attachment.get("length");
-
-    if (length == null) {
-      final var binaryData =
-          Base64.decodeBase64(NpmPayloadUtils.extractTarballDataFromPayload(payload));
-      length = binaryData.length;
+    // A length that is absent or not a number is measured from the data (RPS-2210).
+    if (attachment.get("length") instanceof final Number length) {
+      return length.longValue();
     }
 
-    return length;
+    return Base64.decodeBase64(NpmPayloadUtils.extractTarballDataFromPayload(payload)).length;
   }
 
   public static long getMetadataLength(final Map<String, Object> metadata) throws JacksonException {
@@ -209,8 +206,9 @@ public final class NpmPayloadUtils {
    * content under one name whose served metadata claimed a different one (RPS-1207, the same class
    * of gap RPS-1193 closed for a Maven POM's groupId).
    *
-   * <p>Only fields that are present and are a {@code String} are compared; a payload missing a
-   * field entirely is not refused for it.
+   * <p>Only fields that are present are compared; a payload missing a field entirely is not refused
+   * for it, but one whose field is not a string (a number, an object) declares no package name at
+   * all, so it is refused like a different one (RPS-2210).
    *
    * @throws BadRequestException With the fixed {@code packageNameMismatch} id.
    */
@@ -235,9 +233,82 @@ public final class NpmPayloadUtils {
 
   private static void checkNameMatches(final String expected, final @Nullable Object actual) {
 
-    if (actual instanceof final String name && !expected.equals(name)) {
+    if (actual != null && !expected.equals(actual)) {
       throw new BadRequestException(ProtocolErrorCodes.PACKAGE_NAME_MISMATCH);
     }
+  }
+
+  /**
+   * Refuses a publish or deprecate body whose {@code versions} is not an object of objects, or
+   * whose {@code dist-tags} is not an object of strings. Those are what every later step reads with
+   * a cast, so a number or a list there used to end in a ClassCastException or NPE outside any
+   * handler, a 500 (RPS-2210).
+   *
+   * @throws BadRequestException With {@code badRequest}.
+   */
+  public static void checkPayloadShape(final Map<String, Object> payload) {
+
+    if (!(payload.get(NpmConstants.VERSIONS) instanceof final Map<?, ?> versions)
+        || !versions.values().stream().allMatch(Map.class::isInstance)) {
+      throw new BadRequestException(ProtocolErrorCodes.BAD_REQUEST);
+    }
+
+    final var distTags = payload.get(NpmConstants.DIST_TAGS);
+
+    if (distTags != null
+        && (!(distTags instanceof final Map<?, ?> tags)
+            || !tags.values().stream().allMatch(String.class::isInstance))) {
+      throw new BadRequestException(ProtocolErrorCodes.BAD_REQUEST);
+    }
+  }
+
+  /**
+   * Refuses a publish whose one version, its tarball URL or its attachment is not there or is not
+   * of the type the publish reads it as: what {@code npm publish} always sends, and what cannot be
+   * stored without (RPS-2210). {@link #checkPayloadShape} has already run.
+   *
+   * @throws BadRequestException With {@code badRequest}, or {@code invalidPackageVersion} for a
+   *     {@code version} that is not a string.
+   */
+  public static void checkPublishPayload(final Map<String, Object> payload) {
+
+    final var versions = (Map<String, Object>) payload.get(NpmConstants.VERSIONS);
+
+    if (versions.isEmpty() || !hasEntries(payload.get(NpmConstants.DIST_TAGS))) {
+      throw new BadRequestException(ProtocolErrorCodes.BAD_REQUEST);
+    }
+
+    final var version = (Map<String, Object>) versions.values().iterator().next();
+
+    checkVersionField(version);
+
+    if (!hasTarballUrl(version) || !hasAttachmentData(payload.get(NpmConstants.ATTACHMENTS))) {
+      throw new BadRequestException(ProtocolErrorCodes.BAD_REQUEST);
+    }
+  }
+
+  private static void checkVersionField(final Map<String, Object> version) {
+    final var declared = version.get(NpmConstants.VERSION);
+
+    if (declared != null && !(declared instanceof String)) {
+      throw new BadRequestException(ProtocolErrorCodes.INVALID_PACKAGE_VERSION);
+    }
+  }
+
+  private static boolean hasEntries(final @Nullable Object value) {
+    return value instanceof final Map<?, ?> map && !map.isEmpty();
+  }
+
+  private static boolean hasTarballUrl(final Map<String, Object> version) {
+    return version.get(NpmConstants.NAME) instanceof String
+        && version.get("dist") instanceof final Map<?, ?> dist
+        && dist.get(NpmConstants.TARBALL) instanceof String;
+  }
+
+  private static boolean hasAttachmentData(final @Nullable Object attachments) {
+    return hasEntries(attachments)
+        && ((Map<?, ?>) attachments).values().iterator().next() instanceof final Map<?, ?> first
+        && first.get("data") instanceof String;
   }
 
   /**
