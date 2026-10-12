@@ -36,6 +36,22 @@ jobs:
 
       - run: editorconfig-checker
 
+      # RPS-2054: a submodule pointer must only point at a commit that is on repsy-core's main. The
+      # pin is fetched together with main, and any failure (unreachable pin, no network) fails the
+      # step.
+      - name: The core pin must be on repsy-core main
+        run: |
+          # .gitmodules uses the SSH URL, which the runner has no key for; core is public.
+          git -c url."https://github.com/".insteadOf=git@github.com: submodule update --init --filter=blob:none core
+          pin="$(git rev-parse HEAD:core)"
+          git -C core fetch --quiet --filter=blob:none https://github.com/repsyio/repsy-core.git main
+          if ! git -C core merge-base --is-ancestor "$pin" FETCH_HEAD
+          then
+            echo "::error::The core pin ($pin) is not on repsy-core main. Merge the repsy-core change first, then bump the pointer."
+            exit 1
+          fi
+          echo "core pin $pin is on repsy-core main"
+
   java-checks:
     name: Java check - All
     # RPS-2155: temporarily disabled while the backlog is cleaned. A skipped job still satisfies the
