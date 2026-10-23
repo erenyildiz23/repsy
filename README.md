@@ -623,6 +623,12 @@ Deleting `1.0.0+a` when there is no such entry (the usual case) still deletes `1
 | `DB_USERNAME` | Database username | `repsy` |
 | `DB_PASSWORD` | Database password | `repsy123` |
 | `STORAGE_BASE_PATH` | Base directory for artifact file storage. Set to a path inside `/app/data` (e.g. `/app/data/storage`) to persist artifacts with a single volume mount (the Docker image already does). Deleting a repo, a package or a version moves its files into a `trash/` directory of the protocol (for example `maven/trash`) first; the trash older than `TRASH_RETENTION` is removed every day (see `TRASH_CLEANUP_ENABLED`). | `~/.repsy` (`/app/data/storage` in the Docker image) |
+| `STORAGE_BACKEND` | Where artifact files are kept: `file-system` (under `STORAGE_BASE_PATH`) or `s3` (an S3 compatible object store, configured by the `S3_*` variables; each protocol under its own key prefix, the trash under `trash/<protocol>/`). The two do not share data: switching moves nothing. Any other value stops the application from starting | `file-system` |
+| `S3_ENDPOINT` | URL of the object store when `STORAGE_BACKEND=s3`, for example `http://minio:9000`; empty for AWS S3 itself | empty |
+| `S3_BUCKET` | Bucket that holds the artifacts; created at startup when it does not exist | `repsy` |
+| `S3_REGION`, `S3_ACCESS_KEY`, `S3_SECRET_KEY` | Region and static credentials of the object store | `us-east-1`, empty, empty |
+| `S3_PATH_STYLE` | Address the bucket as a path segment (`/bucket/key`), as MinIO and most self-hosted stores need; `false` for virtual-host style | `true` |
+| `S3_CONNECT_TIMEOUT`, `S3_SOCKET_TIMEOUT`, `S3_MAX_CONNECTIONS` | Connection timeout, read timeout (a store that stops answering fails the request after it) and connection pool size of the object store client | `PT5S`, `PT30S`, `64` |
 | `OS_APP_JWT_SECRET` | JWT signing secret. If not set, a random 256-bit secret is generated on every startup — every restart/redeploy invalidates all existing sessions, forcing every user to log in again. Set a stable, secure random value for any production/self-host deployment. | *(random, regenerated on every startup)* |
 | `SERVER_PORT` | Repository operations port | `9090` |
 | `API_PORT` | Backend API and Frontend web UI port | `8080` |

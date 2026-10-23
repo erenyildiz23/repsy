@@ -330,6 +330,19 @@ os:
     schema: public
 
     storage:
+      # file-system (default) or s3: where every protocol keeps its artifact files (ADR-001).
+      backend: ${STORAGE_BACKEND:file-system}
+      # Read only when backend is s3. One bucket; each protocol under its own prefix.
+      s3:
+        endpoint: ${S3_ENDPOINT:}
+        region: ${S3_REGION:us-east-1}
+        bucket: ${S3_BUCKET:repsy}
+        access-key: ${S3_ACCESS_KEY:}
+        secret-key: ${S3_SECRET_KEY:}
+        path-style: ${S3_PATH_STYLE:true}
+        connect-timeout: ${S3_CONNECT_TIMEOUT:PT5S}
+        socket-timeout: ${S3_SOCKET_TIMEOUT:PT30S}
+        max-connections: ${S3_MAX_CONNECTIONS:64}
       file-system:
         trash-retention: ${TRASH_RETENTION:P7D}
         maven:

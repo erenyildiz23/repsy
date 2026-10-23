@@ -16,8 +16,10 @@
 package io.repsy.os.server.protocols.shared.storage;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.repsy.libs.storage.core.services.StorageStrategy;
+import io.repsy.libs.storage.gateway.filesystem.services.FileSystemStorageStrategy;
 import io.repsy.os.server.protocols.shared.configs.ProtocolStorageConfig;
 import io.repsy.protocols.shared.repo.dtos.RepoType;
 import java.nio.file.Path;
@@ -34,7 +36,7 @@ import org.springframework.test.util.ReflectionTestUtils;
  * os.app.storage.file-system.<type>.base-path} / {@code .trash-path} and the {@code
  * STORAGE_BASE_PATH} variable behind their defaults in the shipped {@code application.yml}.
  */
-class FileSystemStorageBeanRegistrarTest {
+class StorageStrategyBeanRegistrarTest {
 
   private static AnnotationConfigApplicationContext context(
       final java.util.Map<String, Object> overrides) throws Exception {
@@ -63,7 +65,7 @@ class FileSystemStorageBeanRegistrarTest {
       for (final var type : RepoType.values()) {
         final var slug = type.name().toLowerCase(Locale.ROOT);
         final var strategy =
-            context.getBean(FileSystemStorageBeanRegistrar.beanName(type), StorageStrategy.class);
+            context.getBean(StorageStrategyBeanRegistrar.beanName(type), StorageStrategy.class);
 
         assertThat(path(strategy, "basePath")).isEqualTo(Path.of("/data/repsy", slug));
         assertThat(path(strategy, "trashPath")).isEqualTo(Path.of("/data/repsy", slug, "trash"));
@@ -81,14 +83,30 @@ class FileSystemStorageBeanRegistrarTest {
                 "os.app.storage.file-system.golang.trash-path", "/mnt/go-trash"))) {
       final var go =
           context.getBean(
-              FileSystemStorageBeanRegistrar.beanName(RepoType.GOLANG), StorageStrategy.class);
+              StorageStrategyBeanRegistrar.beanName(RepoType.GOLANG), StorageStrategy.class);
       final var maven =
           context.getBean(
-              FileSystemStorageBeanRegistrar.beanName(RepoType.MAVEN), StorageStrategy.class);
+              StorageStrategyBeanRegistrar.beanName(RepoType.MAVEN), StorageStrategy.class);
 
       assertThat(path(go, "basePath")).isEqualTo(Path.of("/mnt/go"));
       assertThat(path(go, "trashPath")).isEqualTo(Path.of("/mnt/go-trash"));
       assertThat(path(maven, "basePath")).isEqualTo(Path.of("/data/repsy/maven"));
     }
+  }
+
+  @Test
+  void theFileSystemIsTheDefaultBackend() throws Exception {
+    try (var context = context(java.util.Map.of("STORAGE_BASE_PATH", "/data/repsy"))) {
+      assertThat(
+              context.getBean(
+                  StorageStrategyBeanRegistrar.beanName(RepoType.NPM), StorageStrategy.class))
+          .isInstanceOf(FileSystemStorageStrategy.class);
+    }
+  }
+
+  @Test
+  void anUnknownBackendFailsTheStartup() {
+    assertThatThrownBy(() -> context(java.util.Map.of("STORAGE_BACKEND", "nfs")))
+        .hasStackTraceContaining("must be file-system or s3, but was nfs");
   }
 }

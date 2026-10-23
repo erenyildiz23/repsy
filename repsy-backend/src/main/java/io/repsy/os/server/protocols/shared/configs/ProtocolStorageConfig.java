@@ -16,7 +16,7 @@
 package io.repsy.os.server.protocols.shared.configs;
 
 import io.repsy.libs.storage.core.services.StorageStrategy;
-import io.repsy.os.server.protocols.shared.storage.FileSystemStorageBeanRegistrar;
+import io.repsy.os.server.protocols.shared.storage.StorageStrategyBeanRegistrar;
 import io.repsy.protocols.shared.repo.dtos.RepoType;
 import io.repsy.protocols.shared.storage.StorageStrategyRegistry;
 import java.util.EnumMap;
@@ -25,9 +25,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
-/** The file system storage of every protocol, reachable through {@link StorageStrategyRegistry}. */
+/**
+ * The storage (file system or S3, see {@code os.app.storage.backend}) of every protocol, reachable
+ * through {@link StorageStrategyRegistry}.
+ */
 @Configuration
-@Import(FileSystemStorageBeanRegistrar.class)
+@Import(StorageStrategyBeanRegistrar.class)
 public class ProtocolStorageConfig {
 
   @Bean
@@ -37,8 +40,7 @@ public class ProtocolStorageConfig {
     for (final var repoType : RepoType.values()) {
       strategies.put(
           repoType,
-          context.getBean(
-              FileSystemStorageBeanRegistrar.beanName(repoType), StorageStrategy.class));
+          context.getBean(StorageStrategyBeanRegistrar.beanName(repoType), StorageStrategy.class));
     }
 
     return new StorageStrategyRegistry(strategies);
