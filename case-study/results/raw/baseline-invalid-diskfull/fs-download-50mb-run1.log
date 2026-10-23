@@ -1,0 +1,40 @@
+ Container repsy-cs-k6-run-ccd872f18293 Creating 
+ Container repsy-cs-k6-run-ccd872f18293 Created 
+
+
+  █ THRESHOLDS 
+
+    dropped_iterations
+    ✓ 'count==0' count=0
+
+    http_req_duration{phase:measure}
+    ✓ 'max>=0' max=0s
+
+    http_req_failed{phase:measure}
+    ✓ 'rate<0.01' rate=0.00%
+
+    http_reqs{phase:measure}
+    ✓ 'count>=0' count=0
+
+
+  █ TOTAL RESULTS 
+
+    HTTP
+    http_req_duration.....: avg=196.58µs med=196.58µs p(90)=196.58µs p(95)=196.58µs p(99)=196.58µs max=196.58µs
+      { phase:measure }...: avg=0s       med=0s       p(90)=0s       p(95)=0s       p(99)=0s       max=0s      
+    http_req_failed.......: 100.00% 1 out of 1
+      { phase:measure }...: 0.00%   0 out of 0
+    http_reqs.............: 1       4.328061/s
+      { phase:measure }...: 0       0/s
+
+    EXECUTION
+    dropped_iterations....: 0       0/s
+
+    NETWORK
+    data_received.........: 391 B   1.7 kB/s
+    data_sent.............: 43 MB   184 MB/s
+
+
+
+time="2026-10-23T09:41:52Z" level=error msg="Error: setup upload 0 answered 503\n\tat setup (file:///work/load/maven.js:80:13(52))\n" hint="script exception" source=stacktrace
+

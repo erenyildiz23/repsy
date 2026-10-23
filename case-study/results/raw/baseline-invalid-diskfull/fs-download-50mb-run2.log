@@ -1,0 +1,40 @@
+ Container repsy-cs-k6-run-186adcbe07a5 Creating 
+ Container repsy-cs-k6-run-186adcbe07a5 Created 
+
+
+  █ THRESHOLDS 
+
+    dropped_iterations
+    ✓ 'count==0' count=0
+
+    http_req_duration{phase:measure}
+    ✓ 'max>=0' max=0s
+
+    http_req_failed{phase:measure}
+    ✓ 'rate<0.01' rate=0.00%
+
+    http_reqs{phase:measure}
+    ✓ 'count>=0' count=0
+
+
+  █ TOTAL RESULTS 
+
+    HTTP
+    http_req_duration.....: avg=1.07ms med=1.07ms p(90)=1.07ms p(95)=1.07ms p(99)=1.07ms max=1.07ms
+      { phase:measure }...: avg=0s     med=0s     p(90)=0s     p(95)=0s     p(99)=0s     max=0s    
+    http_req_failed.......: 100.00% 1 out of 1
+      { phase:measure }...: 0.00%   0 out of 0
+    http_reqs.............: 1       6.849984/s
+      { phase:measure }...: 0       0/s
+
+    EXECUTION
+    dropped_iterations....: 0       0/s
+
+    NETWORK
+    data_received.........: 391 B   2.7 kB/s
+    data_sent.............: 45 MB   309 MB/s
+
+
+
+time="2026-10-23T09:43:08Z" level=error msg="Error: setup upload 0 answered 503\n\tat setup (file:///work/load/maven.js:80:13(52))\n" hint="script exception" source=stacktrace
+

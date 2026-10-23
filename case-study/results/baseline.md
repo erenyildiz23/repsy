@@ -1,0 +1,20 @@
+# Başlangıç ölçümü (Aşama 3)
+
+Üretildi: `python3 load/report.py results/raw/baseline`. Ölçüm penceresi 90 sn, ısınma hariç. Hücre = geçerli koşuların medyanı [min-max]. Süreler ms. Bu makinede göreli karşılaştırmadır (`results/environment.md`).
+
+| İşlem | Boyut | Strateji | Geçerli koşu | p50 | p95 | p99 | istek/sn | MB/sn | hata oranı | repsy CPU / bellek | s3 CPU | Ham dosyalar |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| upload | 1kb | fs | 3/3 | 9 [9-10] | 16 [16-17] | 24 [21-61] | 50.0 [50.0-50.0] | 0.05 [0.05-0.05] | 0.000 [0.000-0.000] | 41.38% / 533.8MiB; 33.07% / 564MiB; 29.64% / 607.1MiB | 4.18%; 4.23%; 0.00% | `fs-upload-1kb-run1.json`, `fs-upload-1kb-run2.json`, `fs-upload-1kb-run3.json` |
+| upload | 1kb | s3 | 3/3 | 21 [18-24] | 50 [38-56] | 158 [113-188] | 50.0 [50.0-50.0] | 0.05 [0.05-0.05] | 0.000 [0.000-0.000] | 68.23% / 549.7MiB; 44.70% / 555.4MiB; 39.13% / 556MiB | 26.85%; 25.45%; 20.89% | `s3-upload-1kb-run1.json`, `s3-upload-1kb-run2.json`, `s3-upload-1kb-run3.json` |
+| upload | 1mb | fs | 3/3 | 12 [12-12] | 26 [25-29] | 335 [334-351] | 20.0 [20.0-20.0] | 20.98 [20.98-20.98] | 0.000 [0.000-0.000] | 16.67% / 642.9MiB; 18.93% / 667.4MiB; 16.08% / 688.1MiB | 0.03%; 3.06%; 2.78% | `fs-upload-1mb-run1.json`, `fs-upload-1mb-run2.json`, `fs-upload-1mb-run3.json` |
+| upload | 1mb | s3 | 3/3 | 34 [33-35] | 52 [51-54] | 88 [84-98] | 20.0 [20.0-20.0] | 20.98 [20.98-20.98] | 0.000 [0.000-0.000] | 25.78% / 565.4MiB; 29.31% / 566.1MiB; 23.69% / 566.3MiB | 23.89%; 21.21%; 21.89% | `s3-upload-1mb-run1.json`, `s3-upload-1mb-run2.json`, `s3-upload-1mb-run3.json` |
+| upload | 50mb | fs | 2/3 | 114 [113-115] | 452 [431-473] | 558 [540-576] | 1.0 [1.0-1.0] | 53.01 [53.01-53.01] | 0.000 [0.000-0.000] | 10.53% / 711.8MiB; 17.07% / 700.8MiB | 4.65%; 2.80% | `fs-upload-50mb-run1.json`, `fs-upload-50mb-run2.json`, `fs-upload-50mb-run3.json` |
+| | | | geçersiz: fs-upload-50mb-run3.json (dropped=0, fail=0.385) | | | | | | | | | |
+| upload | 50mb | s3 | 2/3 | 645 [623-666] | 964 [911-1016] | 1213 [1146-1280] | 1.0 [1.0-1.0] | 53.01 [53.01-53.01] | 0.000 [0.000-0.000] | 19.84% / 581.2MiB; 27.60% / 580.5MiB | 29.70%; 33.29% | `s3-upload-50mb-run1.json`, `s3-upload-50mb-run2.json`, `s3-upload-50mb-run3.json` |
+| | | | geçersiz: s3-upload-50mb-run3.json (dropped=0, fail=0.505) | | | | | | | | | |
+| download | 1kb | fs | 3/3 | 3 [3-3] | 7 [6-7] | 10 [10-39] | 100.0 [100.0-100.0] | 0.10 [0.10-0.10] | 0.000 [0.000-0.000] | 15.53% / 625.4MiB; 18.78% / 626.4MiB; 23.92% / 627.8MiB | 2.52%; 2.82%; 2.87% | `fs-download-1kb-run1.json`, `fs-download-1kb-run2.json`, `fs-download-1kb-run3.json` |
+| download | 1kb | s3 | 3/3 | 6 [6-6] | 12 [12-13] | 21 [20-50] | 100.0 [100.0-100.0] | 0.10 [0.10-0.10] | 0.000 [0.000-0.000] | 27.22% / 560.5MiB; 26.99% / 561MiB; 31.85% / 564.1MiB | 14.49%; 20.76%; 17.69% | `s3-download-1kb-run1.json`, `s3-download-1kb-run2.json`, `s3-download-1kb-run3.json` |
+| download | 1mb | fs | 3/3 | 6 [6-7] | 10 [10-11] | 14 [13-15] | 50.0 [50.0-50.0] | 52.44 [52.44-52.44] | 0.000 [0.000-0.000] | 21.54% / 717.2MiB; 19.47% / 737.5MiB; 22.38% / 758.1MiB | 4.27%; 0.03%; 2.92% | `fs-download-1mb-run1.json`, `fs-download-1mb-run2.json`, `fs-download-1mb-run3.json` |
+| download | 1mb | s3 | 3/3 | 12 [12-13] | 20 [20-24] | 40 [31-45] | 50.0 [50.0-50.0] | 52.44 [52.44-52.44] | 0.000 [0.000-0.000] | 29.07% / 567.7MiB; 31.28% / 567.7MiB; 26.55% / 568.1MiB | 29.33%; 27.95%; 13.19% | `s3-download-1mb-run1.json`, `s3-download-1mb-run2.json`, `s3-download-1mb-run3.json` |
+| download | 50mb | fs | 3/3 | 0 [0-0] | 0 [0-0] | 0 [0-0] | 0.0 [0.0-0.0] | 0.00 [0.00-0.00] | 0.000 [0.000-0.000] | 0.12% / 694.2MiB; 0.15% / 694.2MiB; 0.18% / 694.4MiB | 0.07%; 0.02%; 7.46% | `fs-download-50mb-run1.json`, `fs-download-50mb-run2.json`, `fs-download-50mb-run3.json` |
+| download | 50mb | s3 | 3/3 | 0 [0-0] | 0 [0-0] | 0 [0-0] | 0.0 [0.0-0.0] | 0.00 [0.00-0.00] | 0.000 [0.000-0.000] | 0.15% / 574.7MiB; 0.18% / 574.7MiB; 0.11% / 574.6MiB | 0.18%; 3.08%; 3.38% | `s3-download-50mb-run1.json`, `s3-download-50mb-run2.json`, `s3-download-50mb-run3.json` |

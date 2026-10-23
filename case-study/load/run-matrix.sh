@@ -25,6 +25,13 @@ REPS=${REPS:-3}
 WARMUP=${WARMUP:-30s}
 MEASURE=${MEASURE:-90s}
 BACKENDS=${BACKENDS:-"fs s3"}
+# CELLS limits the run to some op-size pairs ("upload-50mb download-50mb"); RUNS to some run
+# numbers ("3"). FRESH=1 starts every run on a fresh stack: the uploads of one run are deleted
+# before the next, so a 50 MiB cell (6 GB per run) does not fill the disk (it did once, see
+# results/raw/baseline-invalid-diskfull).
+CELLS=${CELLS:-}
+RUNS=${RUNS:-}
+FRESH=${FRESH:-0}
 OUT=results/raw/baseline
 mkdir -p "$OUT"
 load/fixtures.sh > /dev/null
@@ -51,22 +58,36 @@ run_k6() { # backend op size run
   wait "$sampler" || true
 }
 
-for backend in $BACKENDS; do
-  storage=file-system; [ "$backend" = s3 ] && storage=s3
-  echo "== $backend: fresh stack"
+fresh_stack() { # backend
+  local storage=file-system; [ "$1" = s3 ] && storage=s3
   docker compose down -v > /dev/null 2>&1
   STORAGE_BACKEND=$storage docker compose up -d --wait > /dev/null 2>&1
-  echo "  unrecorded JIT warm-up run"
+  # unrecorded JIT warm-up run
   docker compose run --rm -e OP=upload -e SIZE=1mb -e RATE=20 -e WARMUP=5s -e MEASURE=30s \
     -e RUN="warm$RANDOM" k6 run --quiet load/maven.js > /dev/null 2>&1 || true
+}
+
+selected() { # value list
+  [ -z "$2" ] && return 0
+  case " $2 " in *" $1 "*) return 0;; esac
+  return 1
+}
+
+for backend in $BACKENDS; do
+  echo "== $backend: fresh stack"
+  fresh_stack "$backend"
   for size in 1kb 1mb 50mb; do
     for op in upload download; do
+      selected "$op-$size" "$CELLS" || continue
       for n in $(seq 1 "$REPS"); do
+        selected "$n" "$RUNS" || continue
+        [ "$FRESH" = 1 ] && fresh_stack "$backend"
         echo "  $op $size run $n ($(date -u +%T))"
         run_k6 "$backend" "$op" "$size" "$n"
       done
     done
   done
+  docker compose down -v > /dev/null 2>&1
 done
 
 python3 load/report.py "$OUT" > results/baseline.md

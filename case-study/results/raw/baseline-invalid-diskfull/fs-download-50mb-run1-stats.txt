@@ -1,0 +1,4 @@
+repsy-cs-repsy-1 cpu=0.12% mem=694.2MiB / 1GiB net=27.7GB / 19.3GB block=0B / 0B
+repsy-cs-toxiproxy-1 cpu=0.00% mem=5.488MiB / 128MiB net=280MB / 279MB block=0B / 0B
+repsy-cs-postgres-1 cpu=0.00% mem=88.86MiB / 512MiB net=157MB / 132MB block=0B / 0B
+repsy-cs-s3-1 cpu=0.07% mem=73.41MiB / 512MiB net=4.3kB / 126B block=0B / 0B

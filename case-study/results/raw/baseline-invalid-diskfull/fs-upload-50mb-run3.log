@@ -1,0 +1,52 @@
+ Container repsy-cs-k6-run-8a4c89b42654 Creating 
+ Container repsy-cs-k6-run-8a4c89b42654 Created 
+
+
+  █ THRESHOLDS 
+
+    dropped_iterations
+    ✓ 'count==0' count=0
+
+    http_req_duration{phase:measure}
+    ✓ 'max>=0' max=550.7ms
+
+    http_req_failed{phase:measure}
+    ✗ 'rate<0.01' rate=38.46%
+
+    http_reqs{phase:measure}
+    ✓ 'count>=0' count=91
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 122    1.014145/s
+    checks_succeeded...: 71.31% 87 out of 122
+    checks_failed......: 28.68% 35 out of 122
+
+    ✗ status 200
+      ↳  71% — ✓ 87 / ✗ 35
+
+    HTTP
+    http_req_duration..............: avg=122.56ms med=110.04ms p(90)=287.88ms p(95)=442.62ms p(99)=532.62ms max=550.7ms 
+      { expected_response:true }...: avg=171.46ms med=122.15ms p(90)=363.96ms p(95)=470.94ms p(99)=544.58ms max=550.7ms 
+      { phase:measure }............: avg=104.64ms med=98.82ms  p(90)=283.65ms p(95)=364.45ms p(99)=473.46ms max=550.7ms 
+    http_req_failed................: 28.68% 35 out of 122
+      { phase:measure }............: 38.46% 35 out of 91
+    http_reqs......................: 122    1.014145/s
+      { phase:measure }............: 91     0.756452/s
+
+    EXECUTION
+    dropped_iterations.............: 0      0/s
+    iteration_duration.............: avg=195.54ms med=136.19ms p(90)=429.56ms p(95)=476.73ms p(99)=562.67ms max=792.43ms
+    iterations.....................: 122    1.014145/s
+    vus............................: 0      min=0         max=1
+    vus_max........................: 8      min=8         max=8
+
+    NETWORK
+    data_received..................: 23 kB  190 B/s
+    data_sent......................: 6.1 GB 51 MB/s
+
+
+
+time="2026-10-23T09:41:49Z" level=error msg="thresholds on metrics 'http_req_failed{phase:measure}' have been crossed"
+

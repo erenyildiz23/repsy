@@ -1,2 +1,49 @@
  Container repsy-cs-k6-run-c45eb39e29cc Creating 
  Container repsy-cs-k6-run-c45eb39e29cc Created 
+
+
+  █ THRESHOLDS 
+
+    dropped_iterations
+    ✓ 'count==0' count=0
+
+    http_req_duration{phase:measure}
+    ✓ 'max>=0' max=583.33ms
+
+    http_req_failed{phase:measure}
+    ✓ 'rate<0.01' rate=0.00%
+
+    http_reqs{phase:measure}
+    ✓ 'count>=0' count=1801
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 2402    20.014188/s
+    checks_succeeded...: 100.00% 2402 out of 2402
+    checks_failed......: 0.00%   0 out of 2402
+
+    ✓ status 200
+
+    HTTP
+    http_req_duration..............: avg=22.14ms med=12.26ms p(90)=19.29ms p(95)=24.49ms p(99)=344.54ms max=583.33ms
+      { expected_response:true }...: avg=22.14ms med=12.26ms p(90)=19.29ms p(95)=24.49ms p(99)=344.54ms max=583.33ms
+      { phase:measure }............: avg=22.14ms med=12.08ms p(90)=18.94ms p(95)=25.11ms p(99)=335.45ms max=583.33ms
+    http_req_failed................: 0.00%  0 out of 2402
+      { phase:measure }............: 0.00%  0 out of 1801
+    http_reqs......................: 2402   20.014188/s
+      { phase:measure }............: 1801   15.006475/s
+
+    EXECUTION
+    dropped_iterations.............: 0      0/s
+    iteration_duration.............: avg=23.13ms med=13.25ms p(90)=20.36ms p(95)=25.68ms p(99)=345.13ms max=584.25ms
+    iterations.....................: 2402   20.014188/s
+    vus............................: 0      min=0         max=11 
+    vus_max........................: 100    min=100       max=100
+
+    NETWORK
+    data_received..................: 255 kB 2.1 kB/s
+    data_sent......................: 2.5 GB 21 MB/s
+
+
+
