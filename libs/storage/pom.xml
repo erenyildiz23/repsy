@@ -39,5 +39,6 @@
     <module>storage-gateway</module>
     <module>storage-gateway-fs</module>
     <module>storage-gateway-s3</module>
+    <module>storage-gateway-cache</module>
   </modules>
 </project>

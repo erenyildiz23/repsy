@@ -343,6 +343,13 @@ os:
         connect-timeout: ${S3_CONNECT_TIMEOUT:PT5S}
         socket-timeout: ${S3_SOCKET_TIMEOUT:PT30S}
         max-connections: ${S3_MAX_CONNECTIONS:64}
+      # none (default) or redis: keep the small metadata files every install reads (npm package.json,
+      # maven-metadata.xml) in Redis in front of either backend (ADR-005). Fail-open.
+      cache:
+        type: ${STORAGE_CACHE:none}
+        redis-url: ${REDIS_URL:redis://localhost:6379}
+        ttl: ${STORAGE_CACHE_TTL:PT5M}
+        command-timeout: ${STORAGE_CACHE_TIMEOUT:PT0.2S}
       file-system:
         trash-retention: ${TRASH_RETENTION:P7D}
         maven:

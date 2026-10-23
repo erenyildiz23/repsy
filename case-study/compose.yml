@@ -70,6 +70,22 @@ services:
     cpuset: '2'
     mem_limit: 128m
 
+  # Metadata cache of stage 8 (ADR-005); only used when STORAGE_CACHE=redis. Not started by a
+  # plain `up` (the baseline runs without it): `docker compose --profile cache up -d`.
+  redis:
+    profiles: ['cache']
+    image: redis@sha256:57e4255cc971b1c8d6f8a6ca283ac01bc3ecdd914273ef6bfaede87aaecd6541
+    command: ['redis-server', '--save', '', '--appendonly', 'no', '--maxmemory', '64mb',
+              '--maxmemory-policy', 'allkeys-lru']
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    cpus: 0.5
+    cpuset: '2'
+    mem_limit: 128m
+
   repsy:
     image: repsy-cs:local
     build:
@@ -95,6 +111,9 @@ services:
       S3_BUCKET: repsy
       S3_ACCESS_KEY: ${S3_ACCESS_KEY:?Set S3_ACCESS_KEY in case-study/.env}
       S3_SECRET_KEY: ${S3_SECRET_KEY:?Set S3_SECRET_KEY in case-study/.env}
+      # none or redis (stage 8, ADR-005)
+      STORAGE_CACHE: ${STORAGE_CACHE:-none}
+      REDIS_URL: redis://redis:6379
     volumes:
       - repsy-data:/app/data
     healthcheck:

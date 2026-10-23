@@ -16,6 +16,8 @@
 package io.repsy.os.server.protocols.shared.storage;
 
 import io.repsy.libs.storage.core.services.StorageStrategy;
+import io.repsy.libs.storage.gateway.cache.CachingStorageStrategy;
+import io.repsy.libs.storage.gateway.cache.RedisStorageCache;
 import io.repsy.libs.storage.gateway.filesystem.services.FileSystemStorageStrategy;
 import io.repsy.libs.storage.gateway.s3.S3ClientFactory;
 import io.repsy.libs.storage.gateway.s3.S3StorageStrategy;
@@ -46,12 +48,18 @@ import software.amazon.awssdk.services.s3.S3Client;
  * <p>S3: one {@link S3Client} (bean {@code osS3Client}) is shared by the strategies; each keeps its
  * objects under {@code <type>/} and its trash under {@code trash/<type>/} of the bucket that {@link
  * S3StorageProperties} names, which is created on first use when it does not exist.
+ *
+ * <p>{@code os.app.storage.cache.type} ({@code STORAGE_CACHE}) = {@code redis} puts every strategy,
+ * of either backend, behind a {@link CachingStorageStrategy} that keeps the small metadata files
+ * in Redis (ADR-005); {@code none}, the default, leaves the strategies as they are.
  */
 public class StorageStrategyBeanRegistrar implements BeanRegistrar {
   static final String KEY_PREFIX = "os.app.storage.file-system.";
   static final String BACKEND_KEY = "os.app.storage.backend";
   static final String S3_KEY = "os.app.storage.s3";
   static final String S3_CLIENT_BEAN = "osS3Client";
+  static final String CACHE_KEY = "os.app.storage.cache";
+  static final String CACHE_BEAN = "osStorageCache";
 
   private static final EnumMap<RepoType, String> BEAN_NAMES = new EnumMap<>(RepoType.class);
 
@@ -82,16 +90,57 @@ public class StorageStrategyBeanRegistrar implements BeanRegistrar {
     final var binder = Binder.get(env);
     final var backend = binder.bind(BACKEND_KEY, String.class).orElse("file-system");
 
+    final var cache = binder.bindOrCreate(CACHE_KEY, StorageCacheProperties.class);
+    this.registerCache(registry, cache);
+
     switch (backend) {
-      case "file-system" -> this.registerFileSystem(registry, binder);
-      case "s3" -> this.registerS3(registry, binder);
+      case "file-system" -> this.registerFileSystem(registry, binder, cache);
+      case "s3" -> this.registerS3(registry, binder, cache);
       default ->
           throw new IllegalStateException(
               BACKEND_KEY + " (STORAGE_BACKEND) must be file-system or s3, but was " + backend);
     }
   }
 
-  private void registerFileSystem(final BeanRegistry registry, final Binder binder) {
+  /** Registers the Redis cache when {@code os.app.storage.cache.type} is {@code redis}. */
+  private void registerCache(final BeanRegistry registry, final StorageCacheProperties cache) {
+    switch (cache.type()) {
+      case "none" -> {}
+      case "redis" ->
+          registry.registerBean(
+              CACHE_BEAN,
+              RedisStorageCache.class,
+              spec ->
+                  spec.supplier(
+                      context ->
+                          new RedisStorageCache(
+                              cache.redisUrl(), cache.ttl(), cache.commandTimeout())));
+      default ->
+          throw new IllegalStateException(
+              CACHE_KEY + ".type (STORAGE_CACHE) must be none or redis, but was " + cache.type());
+    }
+  }
+
+  /** The strategy itself, or the strategy behind the metadata cache when one is configured. */
+  private static StorageStrategy cached(
+      final BeanRegistry.SupplierContext context,
+      final StorageCacheProperties cache,
+      final RepoType repoType,
+      final StorageStrategy strategy) {
+    if (!"redis".equals(cache.type())) {
+      return strategy;
+    }
+
+    return new CachingStorageStrategy(
+        strategy,
+        context.bean(CACHE_BEAN, RedisStorageCache.class),
+        repoType.name().toLowerCase(Locale.ROOT),
+        cache.fileNames(),
+        cache.maxBytes().toBytes());
+  }
+
+  private void registerFileSystem(
+      final BeanRegistry registry, final Binder binder, final StorageCacheProperties cache) {
     for (final var repoType : RepoType.values()) {
       registry.registerBean(
           beanName(repoType),
@@ -109,13 +158,18 @@ public class StorageStrategyBeanRegistrar implements BeanRegistrar {
                                         key + ".base-path and .trash-path are not configured"));
                     final var trash = context.bean(StorageTrashProperties.class);
 
-                    return new FileSystemStorageStrategy(
-                        paths.basePath(), paths.trashPath(), trash.trashRetention());
+                    return cached(
+                        context,
+                        cache,
+                        repoType,
+                        new FileSystemStorageStrategy(
+                            paths.basePath(), paths.trashPath(), trash.trashRetention()));
                   }));
     }
   }
 
-  private void registerS3(final BeanRegistry registry, final Binder binder) {
+  private void registerS3(
+      final BeanRegistry registry, final Binder binder, final StorageCacheProperties cache) {
     final var properties = binder.bindOrCreate(S3_KEY, S3StorageProperties.class);
 
     registry.registerBean(
@@ -148,13 +202,17 @@ public class StorageStrategyBeanRegistrar implements BeanRegistrar {
           spec ->
               spec.supplier(
                   context ->
-                      new S3StorageStrategy(
-                          context.bean(S3_CLIENT_BEAN, S3Client.class),
-                          properties.bucket(),
-                          type,
-                          "trash/" + type,
-                          context.bean(StorageTrashProperties.class).trashRetention(),
-                          Clock.systemDefaultZone())));
+                      cached(
+                          context,
+                          cache,
+                          repoType,
+                          new S3StorageStrategy(
+                              context.bean(S3_CLIENT_BEAN, S3Client.class),
+                              properties.bucket(),
+                              type,
+                              "trash/" + type,
+                              context.bean(StorageTrashProperties.class).trashRetention(),
+                              Clock.systemDefaultZone()))));
     }
   }
 

@@ -74,7 +74,7 @@ def main():
     print("| İşlem | Boyut | Strateji | Geçerli koşu | p50 | p95 | p99 | istek/sn | MB/sn | hata oranı "
           "| repsy CPU / bellek | s3 CPU | Ham dosyalar |")
     print("| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |")
-    for op in ("upload", "download"):
+    for op in ("upload", "download", "download_cold"):
         for size in ("1kb", "1mb", "50mb"):
             for backend in ("fs", "s3"):
                 runs = groups.get((op, size, backend), [])

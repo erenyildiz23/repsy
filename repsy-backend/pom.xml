@@ -143,6 +143,12 @@
         </dependency>
 
         <dependency>
+            <groupId>io.repsy.libs</groupId>
+            <artifactId>storage-gateway-cache</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
         </dependency>

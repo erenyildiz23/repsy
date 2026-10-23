@@ -629,6 +629,8 @@ Deleting `1.0.0+a` when there is no such entry (the usual case) still deletes `1
 | `S3_REGION`, `S3_ACCESS_KEY`, `S3_SECRET_KEY` | Region and static credentials of the object store | `us-east-1`, empty, empty |
 | `S3_PATH_STYLE` | Address the bucket as a path segment (`/bucket/key`), as MinIO and most self-hosted stores need; `false` for virtual-host style | `true` |
 | `S3_CONNECT_TIMEOUT`, `S3_SOCKET_TIMEOUT`, `S3_MAX_CONNECTIONS` | Connection timeout, read timeout (a store that stops answering fails the request after it) and connection pool size of the object store client | `PT5S`, `PT30S`, `64` |
+| `STORAGE_CACHE` | `redis` keeps the small metadata files that every install reads (the npm `package.json` packument, Maven's `maven-metadata.xml`) in Redis in front of either storage backend; every write through Repsy drops the cached copy. A Redis that is down or slow is skipped, never a failed request. `none` caches nothing | `none` |
+| `REDIS_URL`, `STORAGE_CACHE_TTL`, `STORAGE_CACHE_TIMEOUT` | Redis of the metadata cache, how long a cached file is served (the most a read can lag a write whose cache eviction was lost), and how long one Redis call may take before the read goes to the storage | `redis://localhost:6379`, `PT5M`, `PT0.2S` |
 | `OS_APP_JWT_SECRET` | JWT signing secret. If not set, a random 256-bit secret is generated on every startup — every restart/redeploy invalidates all existing sessions, forcing every user to log in again. Set a stable, secure random value for any production/self-host deployment. | *(random, regenerated on every startup)* |
 | `SERVER_PORT` | Repository operations port | `9090` |
 | `API_PORT` | Backend API and Frontend web UI port | `8080` |
