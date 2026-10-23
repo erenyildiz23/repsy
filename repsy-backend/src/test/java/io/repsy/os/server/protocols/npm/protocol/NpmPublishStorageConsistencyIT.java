@@ -84,6 +84,11 @@ class NpmPublishStorageConsistencyIT extends AbstractIT {
   private static final String REJECTED_DESCRIPTION = "reject-me";
 
   private static final String REJECT_DESCRIPTION_CONSTRAINT = "ch_npm_package_version__it_rejected";
+
+  /** A description the database accepts on insert and refuses at commit, see {@link #failAtCommit}. */
+  private static final String FAIL_AT_COMMIT_DESCRIPTION = "fail-at-commit";
+
+  private static final String FAIL_AT_COMMIT_TRIGGER = "tr_npm_package_version__it_fail_at_commit";
   private static final String HOST = "http://localhost:9090";
   private static final String PUBLISH_PATH = "/{repo}/{packagePath}";
 
@@ -109,6 +114,31 @@ class NpmPublishStorageConsistencyIT extends AbstractIT {
     this.jdbcTemplate.execute(
         "alter table npm_package_version drop constraint if exists "
             + REJECT_DESCRIPTION_CONSTRAINT);
+    this.jdbcTemplate.execute(
+        "drop trigger if exists " + FAIL_AT_COMMIT_TRIGGER + " on npm_package_version");
+    this.jdbcTemplate.execute("drop function if exists it_fail_at_commit()");
+  }
+
+  /**
+   * Makes PostgreSQL fail the commit of a transaction that inserted a version row with {@link
+   * #FAIL_AT_COMMIT_DESCRIPTION}: a deferred constraint trigger runs at {@code COMMIT}, after the
+   * publish wrote its files, as a connection lost at commit or a deferred constraint would.
+   */
+  private void failAtCommit() {
+    this.jdbcTemplate.execute(
+        """
+        create or replace function it_fail_at_commit() returns trigger language plpgsql as $$
+        begin
+          raise exception 'commit refused by the test';
+        end $$
+        """);
+    this.jdbcTemplate.execute(
+        "create constraint trigger "
+            + FAIL_AT_COMMIT_TRIGGER
+            + " after insert on npm_package_version deferrable initially deferred for each row"
+            + " when (new.description = '"
+            + FAIL_AT_COMMIT_DESCRIPTION
+            + "') execute function it_fail_at_commit()");
   }
 
   /**
@@ -624,5 +654,47 @@ class NpmPublishStorageConsistencyIT extends AbstractIT {
     assertThat(this.metadataVersions(repo, name))
         .as("the second publish read the metadata the first one wrote, not the one before it")
         .containsExactlyInAnyOrder("1.0.0", "1.1.0", "1.2.0");
+  }
+
+  @Test
+  @DisplayName("a commit that fails after the files were written leaves no files of a new package")
+  void failedCommitLeavesNoFilesForANewPackage() throws Exception {
+    final var repo = this.npmRepo(false);
+    final var name = uniquePackageName();
+    this.failAtCommit();
+
+    final var response =
+        this.publish(
+            repo, name, "1.0.0", FAIL_AT_COMMIT_DESCRIPTION, tarballOf("lost"), this.adminToken());
+
+    assertThat(response.getStatus()).isEqualTo(500);
+    assertThat(this.storedPackageCount(repo, name)).isZero();
+    assertThat(this.storedVersionCount(repo, name)).isZero();
+    assertThat(tarballFile(repo, name, "1.0.0"))
+        .as("the tarball of a publish whose commit failed is an orphan no row will ever reach")
+        .doesNotExist();
+    assertThat(metadataFile(repo, name)).doesNotExist();
+  }
+
+  @Test
+  @DisplayName("a commit that fails after the files were written puts the package back as it was")
+  void failedCommitLeavesTheStoredPackageAsItWas() throws Exception {
+    final var repo = this.npmRepo(false);
+    final var name = uniquePackageName();
+    final var token = this.adminToken();
+    assertThat(this.publish(repo, name, "1.0.0", "first", tarballOf("first"), token).getStatus())
+        .isEqualTo(200);
+    this.failAtCommit();
+
+    final var response =
+        this.publish(repo, name, "1.1.0", FAIL_AT_COMMIT_DESCRIPTION, tarballOf("lost"), token);
+
+    assertThat(response.getStatus()).isEqualTo(500);
+    assertThat(this.storedVersionCount(repo, name)).isEqualTo(1);
+    assertThat(tarballFile(repo, name, "1.1.0")).doesNotExist();
+    assertThat(tarballFile(repo, name, "1.0.0")).hasBinaryContent(tarballOf("first"));
+    assertThat(this.metadataVersions(repo, name))
+        .as("the package metadata must not list a version the database does not have")
+        .containsExactly("1.0.0");
   }
 }
