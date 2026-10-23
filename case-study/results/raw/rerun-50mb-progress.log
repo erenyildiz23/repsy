@@ -2,3 +2,8 @@
   upload 50mb run 1 (13:01:30)
   upload 50mb run 2 (13:04:51)
   upload 50mb run 3 (13:08:05)
+  download 50mb run 1 (13:11:21)
+  download 50mb run 2 (13:14:38)
+  download 50mb run 3 (13:17:55)
+== s3: fresh stack
+  upload 50mb run 1 (13:22:19)
