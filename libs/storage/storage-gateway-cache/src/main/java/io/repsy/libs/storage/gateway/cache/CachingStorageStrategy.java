@@ -59,6 +59,9 @@ public class CachingStorageStrategy implements StorageStrategy {
   /** A cached value is the file's last-modified time (8 bytes) followed by its content. */
   private static final int TIME_BYTES = Long.BYTES;
 
+  /** Cache failures between two log lines. */
+  private static final int LOG_EVERY = 100;
+
   private final StorageStrategy delegate;
   private final StorageCache cache;
   private final String namespace;
@@ -146,8 +149,7 @@ public class CachingStorageStrategy implements StorageStrategy {
   @Override
   public BaseUsages append(
       final String repoName, final StoragePath storagePath, final byte[] data) {
-    return this.evictingAfter(
-        storagePath, () -> this.delegate.append(repoName, storagePath, data));
+    return this.evictingAfter(storagePath, () -> this.delegate.append(repoName, storagePath, data));
   }
 
   @Override
@@ -159,8 +161,7 @@ public class CachingStorageStrategy implements StorageStrategy {
 
   @Override
   public BaseUsages renameObject(final StoragePath storagePath, final String digest) {
-    return this.evictingAfter(
-        storagePath, () -> this.delegate.renameObject(storagePath, digest));
+    return this.evictingAfter(storagePath, () -> this.delegate.renameObject(storagePath, digest));
   }
 
   @Override
@@ -259,8 +260,13 @@ public class CachingStorageStrategy implements StorageStrategy {
   private void cacheFailed(final String action, final String key, final RuntimeException e) {
     final long count = this.errors.incrementAndGet();
     // One line per hundred failures: a cache that is down must not flood the log.
-    if (count % 100 == 1) {
-      log.warn("Storage cache {} of {} failed ({} failures so far): {}", action, key, count, e.toString());
+    if (count % LOG_EVERY == 1) {
+      log.warn(
+          "Storage cache {} of {} failed ({} failures so far): {}",
+          action,
+          key,
+          count,
+          e.toString());
     }
   }
 

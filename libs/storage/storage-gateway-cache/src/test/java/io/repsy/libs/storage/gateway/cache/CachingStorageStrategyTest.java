@@ -45,7 +45,8 @@ class CachingStorageStrategyTest {
   void setUp() {
     final var fs =
         new FileSystemStorageStrategy(
-            this.tempDir.resolve("s").toString(), this.tempDir.resolve("t").toString(),
+            this.tempDir.resolve("s").toString(),
+            this.tempDir.resolve("t").toString(),
             Duration.ofDays(7));
     this.strategy = new CachingStorageStrategy(fs, this.cache, "npm", Set.of("package.json"), 100);
   }

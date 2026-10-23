@@ -25,8 +25,8 @@ import org.springframework.util.unit.DataSize;
  * os.app.storage.cache} by {@link StorageStrategyBeanRegistrar}.
  *
  * @param type {@code none} or {@code redis}
- * @param ttl how long a cached file is served without asking the storage; the bound on how stale
- *     a read can be after a write whose eviction was lost
+ * @param ttl how long a cached file is served without asking the storage; the bound on how stale a
+ *     read can be after a write whose eviction was lost
  * @param commandTimeout how long one Redis call may take before the read goes to the storage
  * @param fileNames the file names that are cached: the npm packument and Maven's metadata
  * @param maxBytes the largest file that is cached

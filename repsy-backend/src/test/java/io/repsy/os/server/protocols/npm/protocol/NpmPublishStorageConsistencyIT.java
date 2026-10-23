@@ -85,7 +85,9 @@ class NpmPublishStorageConsistencyIT extends AbstractIT {
 
   private static final String REJECT_DESCRIPTION_CONSTRAINT = "ch_npm_package_version__it_rejected";
 
-  /** A description the database accepts on insert and refuses at commit, see {@link #failAtCommit}. */
+  /**
+   * A description the database accepts on insert and refuses at commit, see {@link #failAtCommit}.
+   */
   private static final String FAIL_AT_COMMIT_DESCRIPTION = "fail-at-commit";
 
   private static final String FAIL_AT_COMMIT_TRIGGER = "tr_npm_package_version__it_fail_at_commit";

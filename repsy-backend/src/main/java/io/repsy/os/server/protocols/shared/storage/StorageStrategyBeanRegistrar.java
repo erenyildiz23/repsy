@@ -50,8 +50,8 @@ import software.amazon.awssdk.services.s3.S3Client;
  * S3StorageProperties} names, which is created on first use when it does not exist.
  *
  * <p>{@code os.app.storage.cache.type} ({@code STORAGE_CACHE}) = {@code redis} puts every strategy,
- * of either backend, behind a {@link CachingStorageStrategy} that keeps the small metadata files
- * in Redis (ADR-005); {@code none}, the default, leaves the strategies as they are.
+ * of either backend, behind a {@link CachingStorageStrategy} that keeps the small metadata files in
+ * Redis (ADR-005); {@code none}, the default, leaves the strategies as they are.
  */
 public class StorageStrategyBeanRegistrar implements BeanRegistrar {
   static final String KEY_PREFIX = "os.app.storage.file-system.";

@@ -30,8 +30,8 @@ import java.util.List;
 import org.jspecify.annotations.Nullable;
 
 /**
- * {@link StorageCache} on Redis through one shared Lettuce connection, with a short command
- * timeout so a Redis that stops answering costs a request {@code commandTimeout}, not a hang. The
+ * {@link StorageCache} on Redis through one shared Lettuce connection, with a short command timeout
+ * so a Redis that stops answering costs a request {@code commandTimeout}, not a hang. The
  * connection is opened lazily and reopened after a failure, so Repsy starts and serves without
  * Redis (fail-open, ADR-005).
  */

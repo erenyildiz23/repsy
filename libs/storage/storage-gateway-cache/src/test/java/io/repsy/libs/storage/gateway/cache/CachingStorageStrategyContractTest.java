@@ -40,6 +40,11 @@ class CachingStorageStrategyContractTest extends AbstractStorageStrategyContract
             this.tempDir.resolve("trash").toString(),
             trashRetention);
     // Every name the contract writes is cached, so every read and write goes through the cache.
-    return new CachingStorageStrategy(fs, this.cache, "t", Set.of("f", "a.jar", "a-1.0.jar", "big.bin", "uuid", "sha256:abc", "maven-metadata.xml"), 1 << 30);
+    return new CachingStorageStrategy(
+        fs,
+        this.cache,
+        "t",
+        Set.of("f", "a.jar", "a-1.0.jar", "big.bin", "uuid", "sha256:abc", "maven-metadata.xml"),
+        1 << 30);
   }
 }
