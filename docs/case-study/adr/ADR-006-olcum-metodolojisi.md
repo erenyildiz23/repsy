@@ -27,10 +27,15 @@ kapasite değil, aynı koşullarda göreli karşılaştırma.
 - **Süre:** referans 1 dk ısınma + 5 dk ölçüm öneriyor. 36 koşu × 6 dk = 3,6 saat olurdu. 30 sn +
   90 sn seçildi (36 koşu ≈ 85 dk). Kuyruktaki nadir olaylar (p99'un ötesi) daha az örnekle ölçülüyor.
   50 MB satırları 90 sn'de yalnızca 90-180 istek, bu yüzden p99 oralarda birkaç örneğe dayanıyor.
-- **Soğuk önbellek ölçülmedi:** `/proc/sys/vm/drop_caches` host ayarı. Bu ortamda host VM'ine
-  dokunmak gerekir ve REFERENCE §0 önce sormayı istiyor. Dosya sistemi indirmeleri büyük olasılıkla
-  page cache'ten (RAM) geliyor: 20 dosya × 50 MB = 1 GB, RAM 15 GiB. S3 tarafında Silo'nun kendi
-  diski de aynı page cache'i kullanıyor. Tüm indirme sayıları **sıcak** kabul edilmeli.
+- **Soğuk önbellek denendi, bu ortamda üretilemedi.** Kullanıcı onayıyla (2026-10-23)
+  `load/run-cold.sh` indirme koşularını her saniye `sync; echo 3 > /proc/sys/vm/drop_caches` ile
+  tekrarladı (backend × boyut başına 1 koşu, kullanım bütçesi için). Sonuç sıcak koşularla aynı
+  aralıkta (`results/baseline.md`, `download_cold` satırları; ör. 50 MB fs p50 101 → 103 ms, s3 161
+  → 156 ms). En olası açıklama: `drop_caches` yalnızca bu Firecracker VM'inin page cache'ini
+  boşaltıyor, VM'in diski host tarafında da önbellekleniyor ve o katmana erişim yok. Yani bu
+  ortamda gerçek bir disk okuması ölçülemedi. Sonuç "soğuk önbellek fark etmiyor" diye değil,
+  "soğuk okuma bu ortamda üretilemedi" diye okunmalı. Gerçek soğuk ölçüm için bellek limiti
+  çalışma setinden küçük bir makine ya da host'a erişim gerekir.
 - **Toxiproxy her iki yolda:** Repsy PostgreSQL'e ve S3'e Toxiproxy üzerinden bağlanıyor (toxic yok).
   Dosya sistemi yolunda yalnızca DB sıçraması var, S3 yolunda DB + nesne deposu. Bu sıçramanın
   maliyeti ölçülmedi.

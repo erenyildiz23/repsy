@@ -1,0 +1,10 @@
+== fs: fresh stack
+  cold download 1kb run 1 (13:46:09)
+  cold download 1mb run 1 (13:48:10)
+  cold download 50mb run 1 (13:50:12)
+== s3: fresh stack
+  cold download 1kb run 1 (13:53:28)
+  cold download 1mb run 1 (13:55:30)
+  cold download 50mb run 1 (13:57:32)
+== results/baseline.md rewritten with the cold rows
+exit=0
