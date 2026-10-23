@@ -205,6 +205,12 @@
             <exclude>e2e/playwright-report/**</exclude>
             <!-- Flyway script config (executeInTransaction=false): one property, no place for a header. -->
             <exclude>**/db/migration/**/*.sql.conf</exclude>
+            <!-- Case study (fork only): docs, raw measurements and data files cannot carry a header. -->
+            <exclude>docs/case-study/**</exclude>
+            <exclude>case-study/results/**</exclude>
+            <exclude>case-study/.env*</exclude>
+            <exclude>case-study/docker/toxiproxy.json</exclude>
+            <exclude>case-study/docker/Dockerfile.dockerignore</exclude>
           </excludes>
         </configuration>
       </plugin>

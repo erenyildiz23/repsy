@@ -1,0 +1,4 @@
+[
+  {"name": "pg", "listen": "0.0.0.0:15432", "upstream": "postgres:5432", "enabled": true},
+  {"name": "s3", "listen": "0.0.0.0:19000", "upstream": "s3:9000", "enabled": true}
+]

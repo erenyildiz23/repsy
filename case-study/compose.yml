@@ -1,0 +1,101 @@
+# Copyright 2026 the original author or authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Case-study stack: Repsy + PostgreSQL + an S3 server, with Toxiproxy between Repsy and both of
+# them so the chaos scripts can add latency, cut or hang a connection. Every image is pinned by
+# digest (ADR-003) and every service has CPU and memory limits, so load runs are comparable.
+# Start with `docker compose -f case-study/compose.yml up -d --build` after `case-study/build.sh`.
+name: repsy-cs
+
+services:
+  postgres:
+    image: postgres:18@sha256:edb0c08dc33befd0262ab3b5cf1c4f3f8cfd8b09e88c05b45adee29d6761ddb6
+    environment:
+      POSTGRES_DB: repsy
+      POSTGRES_USER: repsy
+      POSTGRES_PASSWORD: repsy123
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U repsy -d repsy']
+      interval: 2s
+      timeout: 5s
+      retries: 30
+    cpus: 1
+    mem_limit: 512m
+
+  # pgsty/silo, a maintained MinIO fork: minio/minio left Docker Hub and quay.io refuses anonymous
+  # pulls (ADR-003). It reads the MINIO_* variables and serves /minio/health/live.
+  s3:
+    image: pgsty/silo@sha256:2636fc4155d9a7e41ff58cdb65ddd13ba9304e67184e13c25bc5cb34016269d7
+    command: ['server', '/data']
+    environment:
+      MINIO_ROOT_USER: ${S3_ACCESS_KEY:?Set S3_ACCESS_KEY in case-study/.env}
+      MINIO_ROOT_PASSWORD: ${S3_SECRET_KEY:?Set S3_SECRET_KEY in case-study/.env}
+    healthcheck:
+      test: ['CMD', 'curl', '-fs', 'http://localhost:9000/minio/health/live']
+      interval: 2s
+      timeout: 5s
+      retries: 30
+    ports:
+      - '9000:9000'
+    cpus: 1
+    mem_limit: 512m
+
+  toxiproxy:
+    image: ghcr.io/shopify/toxiproxy:2.12.0@sha256:9378ed52a28bc50edc1350f936f518f31fa95f0d15917d6eb40b8e376d1a214e
+    command: ['-host=0.0.0.0', '-config=/config/toxiproxy.json']
+    volumes:
+      - ./docker/toxiproxy.json:/config/toxiproxy.json:ro
+    ports:
+      - '8474:8474'
+    depends_on:
+      postgres:
+        condition: service_healthy
+      s3:
+        condition: service_healthy
+    cpus: 0.5
+    mem_limit: 128m
+
+  repsy:
+    image: repsy-cs:local
+    build:
+      context: ..
+      dockerfile: case-study/docker/Dockerfile
+    stop_grace_period: 60s
+    depends_on:
+      toxiproxy:
+        condition: service_started
+    ports:
+      - '8080:8080'
+      - '9090:9090'
+    environment:
+      DB_URL: jdbc:postgresql://toxiproxy:15432/repsy
+      DB_USERNAME: repsy
+      DB_PASSWORD: repsy123
+      ADMIN_INITIAL_PASSWORD: ${REPSY_ADMIN_PASSWORD:?Set REPSY_ADMIN_PASSWORD in case-study/.env}
+      AUTH_THROTTLE_MAX_FAILURES: '100000'
+    volumes:
+      - repsy-data:/app/data
+    healthcheck:
+      # Without the SPA nothing on the api port answers 200 to an anonymous GET; the listeners are
+      # opened once the context is up, so an open port is the readiness signal.
+      test: ['CMD', 'nc', '-z', 'localhost', '9090']
+      interval: 3s
+      timeout: 3s
+      retries: 60
+      start_period: 10s
+    cpus: 2
+    mem_limit: 1g
+
+volumes:
+  repsy-data:

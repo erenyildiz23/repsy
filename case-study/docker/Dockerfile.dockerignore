@@ -1,0 +1,4 @@
+# Only what case-study/docker/Dockerfile copies; overrides the root .dockerignore.
+*
+!entrypoint.sh
+!repsy-backend/target/repsy-backend.jar

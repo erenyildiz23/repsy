@@ -1,0 +1,1 @@
+Error response from daemon: pull access denied for minio/minio, repository does not exist or may require 'docker login'
