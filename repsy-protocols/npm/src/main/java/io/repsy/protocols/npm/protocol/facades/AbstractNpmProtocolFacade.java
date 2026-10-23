@@ -50,6 +50,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.event.Level;
 import org.springframework.core.io.Resource;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -546,27 +548,112 @@ public abstract class AbstractNpmProtocolFacade<ID> implements NpmProtocolFacade
 
     // The rows are rolled back with a failure. A version being replaced keeps its row, so its
     // files are left alone.
+    final BaseUsages usages;
     try {
-      return StoredUpload.storeOrDiscard(
-          () ->
-              this.writeFiles(
-                  repoInfo, scopeName, packageBasePath, packageName, versionName, payload, kind),
-          () ->
-              this.npmStorageService.discardPublishedVersion(
-                  RepoRef.of(repoInfo),
-                  packageBasePath,
-                  packageName,
-                  versionName,
-                  previousMetadata),
-          kind == PublishKind.REPLACES_VERSION,
-          log,
-          Level.WARN,
-          "npm package " + packageName + " " + versionName);
+      usages =
+          StoredUpload.storeOrDiscard(
+              () ->
+                  this.writeFiles(
+                      repoInfo,
+                      scopeName,
+                      packageBasePath,
+                      packageName,
+                      versionName,
+                      payload,
+                      kind),
+              () ->
+                  this.npmStorageService.discardPublishedVersion(
+                      RepoRef.of(repoInfo),
+                      packageBasePath,
+                      packageName,
+                      versionName,
+                      previousMetadata),
+              kind == PublishKind.REPLACES_VERSION,
+              log,
+              Level.WARN,
+              "npm package " + packageName + " " + versionName);
     } catch (final IOException | URISyntaxException | RuntimeException e) {
       throw e;
     } catch (final Exception e) {
       // storeOrDiscard throws only what the write throws, which is covered above.
       throw new IllegalStateException(e);
+    }
+
+    if (kind != PublishKind.REPLACES_VERSION) {
+      this.discardIfNotCommitted(
+          repoInfo, scopeName, packageBasePath, packageName, versionName, previousMetadata);
+    }
+
+    return usages;
+  }
+
+  /**
+   * Takes the files of a new version back when the transaction that holds its rows does not commit
+   * after they were written: a commit that PostgreSQL refuses or a connection lost at commit (case
+   * study, stage 6). {@code storeOrDiscard} only sees a failure of the write itself, so without
+   * this the tarball stayed in storage without a row and the package metadata listed a version the
+   * database does not have. The Helm manifest push does the same ({@code HelmOciManifestFacade}).
+   *
+   * <p>Spring reports most commit failures as {@code STATUS_UNKNOWN}: the commit may have happened
+   * (a connection lost after the server committed). So the database, the authority on which
+   * versions exist, is asked in a new transaction, and the files are discarded only when it does
+   * not have the version. When it cannot be asked either, the files stay and the failure is logged;
+   * a later publish of the version replaces them ({@link #noteOrphanedTarball}).
+   */
+  private void discardIfNotCommitted(
+      final BaseRepoInfo<ID> repoInfo,
+      final @Nullable String scopeName,
+      final Path packageBasePath,
+      final String packageName,
+      final String versionName,
+      final byte @Nullable [] previousMetadata) {
+
+    if (!TransactionSynchronizationManager.isSynchronizationActive()) {
+      return;
+    }
+
+    TransactionSynchronizationManager.registerSynchronization(
+        new TransactionSynchronization() {
+          @Override
+          public void afterCompletion(final int status) {
+            if (status == STATUS_COMMITTED) {
+              return;
+            }
+
+            AbstractNpmProtocolFacade.this.discardUnlessStored(
+                repoInfo, scopeName, packageBasePath, packageName, versionName, previousMetadata);
+          }
+        });
+  }
+
+  private void discardUnlessStored(
+      final BaseRepoInfo<ID> repoInfo,
+      final @Nullable String scopeName,
+      final Path packageBasePath,
+      final String packageName,
+      final String versionName,
+      final byte @Nullable [] previousMetadata) {
+
+    try {
+      if (this.storedVersionNames(repoInfo, scopeName, packageName).contains(versionName)) {
+        return;
+      }
+
+      this.npmStorageService.discardPublishedVersion(
+          RepoRef.of(repoInfo), packageBasePath, packageName, versionName, previousMetadata);
+      log.warn(
+          "The publish of npm package {} {} in repo {} did not commit, its files were taken back",
+          packageName,
+          versionName,
+          repoInfo.getName());
+    } catch (final IOException | RuntimeException e) {
+      log.error(
+          "The publish of npm package {} {} in repo {} did not commit and its files could not be"
+              + " taken back; a later publish of the version replaces them",
+          packageName,
+          versionName,
+          repoInfo.getName(),
+          e);
     }
   }
 
