@@ -1,0 +1,6 @@
+== fs: fresh stack
+  unrecorded JIT warm-up run
+  upload 1kb run 1 (09:11:30)
+  upload 1kb run 2 (09:13:31)
+  upload 1kb run 3 (09:15:32)
+  download 1kb run 1 (09:17:33)
