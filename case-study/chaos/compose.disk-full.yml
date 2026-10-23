@@ -1,0 +1,10 @@
+# Disk-full scenario (REFERENCE §10): Repsy's storage on a 60 MiB tmpfs, so a second 50 MiB
+# upload hits ENOSPC without touching the host disk. tmpfs counts against the memory limit, so
+# the limit is raised by its size.
+services:
+  repsy:
+    environment:
+      STORAGE_BASE_PATH: /mnt/small
+    tmpfs:
+      - /mnt/small:size=60m,uid=100,gid=101,mode=0755
+    mem_limit: 1100m
