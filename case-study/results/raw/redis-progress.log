@@ -1,0 +1,7 @@
+no cache (14:26:01)
+redis cache (14:28:37)
+redis paused mid-run (14:31:20)
+ Container repsy-cs-redis-1 Paused 
+ Container repsy-cs-redis-1 Unpaused 
+  (k6 exit 99)
+exit=0

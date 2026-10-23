@@ -82,7 +82,18 @@ verdi, hiçbir istek yarım dosyayla `200` almadı.
 
 ## Redis
 
-REDIS_TBD
+S3 backend'de paket metadata okuması, 100 istek/sn (ADR-005, `results/raw/redis/`):
+
+| | p50 | p95 | p99 | hata |
+| --- | --- | --- | --- | --- |
+| Önbelleksiz | 9,1 | 21,7 | 41,0 | 0 |
+| Redis (isabet %99,6) | 6,3 | 13,3 | 22,6 | 0 |
+| Redis 30 sn donduruldu | 7,1 | 419,5 | 436,9 | 0 |
+
+Önbellek p95'i %39 düşürdü. 200 istek/sn'de önbelleksiz S3 yükü taşıyamadı, önbellekli neredeyse
+taşıdı (`results/raw/redis-rate200-overload/`, geçersiz koşular, yalnızca eğilim). Redis kesintisinde
+hiçbir istek başarısız olmadı (fail-open), ama her istek iki zaman aşımı (~400 ms) bekledi. Bir
+devre kesici bu maliyeti kaldırır, uygulanmadı.
 
 ## Farklı yapsaydım
 
