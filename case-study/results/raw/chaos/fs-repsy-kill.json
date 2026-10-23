@@ -1,0 +1,22 @@
+{
+ "backend": "fs",
+ "objects": 35,
+ "maven": {
+  "versions": 12,
+  "pom_without_row": [],
+  "row_without_pom": [],
+  "jar_without_pom": [
+   "com.example.chaos/chaos/v1"
+  ]
+ },
+ "npm": {
+  "versions": 10,
+  "tgz_without_row": [],
+  "row_without_tgz": []
+ },
+ "usage_drift": {
+  "maven": 0,
+  "npm": 0
+ },
+ "leftovers": 0
+}

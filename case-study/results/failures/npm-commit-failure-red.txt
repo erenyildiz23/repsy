@@ -1,0 +1,20 @@
+-------------------------------------------------------------------------------
+Test set: io.repsy.os.server.protocols.npm.protocol.NpmPublishStorageConsistencyIT
+-------------------------------------------------------------------------------
+Tests run: 2, Failures: 2, Errors: 0, Skipped: 0, Time elapsed: 32.31 s <<< FAILURE! -- in io.repsy.os.server.protocols.npm.protocol.NpmPublishStorageConsistencyIT
+io.repsy.os.server.protocols.npm.protocol.NpmPublishStorageConsistencyIT.failedCommitLeavesNoFilesForANewPackage -- Time elapsed: 1.115 s <<< FAILURE!
+java.lang.AssertionError: 
+[the tarball of a publish whose commit failed is an orphan no row will ever reach] 
+Expecting path:
+  /tmp/repsy-it-storage835387947902486290/npm/01a16919-fd04-76a0-9255-3c589b9e5b52/consistency-77f06f99/consistency-77f06f99-1.0.0.tgz
+not to exist
+	at io.repsy.os.server.protocols.npm.protocol.NpmPublishStorageConsistencyIT.failedCommitLeavesNoFilesForANewPackage(NpmPublishStorageConsistencyIT.java:677)
+
+io.repsy.os.server.protocols.npm.protocol.NpmPublishStorageConsistencyIT.failedCommitLeavesTheStoredPackageAsItWas -- Time elapsed: 0.270 s <<< FAILURE!
+java.lang.AssertionError: 
+
+Expecting path:
+  /tmp/repsy-it-storage835387947902486290/npm/01a1691a-0138-7183-8ae6-4fe6d22912b8/consistency-55876559/consistency-55876559-1.1.0.tgz
+not to exist
+	at io.repsy.os.server.protocols.npm.protocol.NpmPublishStorageConsistencyIT.failedCommitLeavesTheStoredPackageAsItWas(NpmPublishStorageConsistencyIT.java:696)
+

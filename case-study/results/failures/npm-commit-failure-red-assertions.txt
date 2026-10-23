@@ -1,0 +1,37 @@
+java.lang.AssertionError: 
+[the tarball of a publish whose commit failed is an orphan no row will ever reach] 
+Expecting path:
+  /tmp/repsy-it-storage835387947902486290/npm/01a16919-fd04-76a0-9255-3c589b9e5b52/consistency-77f06f99/consistency-77f06f99-1.0.0.tgz
+not to exist
+	at io.repsy.os.server.protocols.npm.protocol.NpmPublishStorageConsistencyIT.failedCommitLeavesNoFilesForANewPackage(NpmPublishStorageConsistencyIT.java:677)
+
+[ERROR] io.repsy.os.server.protocols.npm.protocol.NpmPublishStorageConsistencyIT.failedCommitLeavesTheStoredPackageAsItWas -- Time elapsed: 0.270 s <<< FAILURE!
+java.lang.AssertionError: 
+
+Expecting path:
+  /tmp/repsy-it-storage835387947902486290/npm/01a1691a-0138-7183-8ae6-4fe6d22912b8/consistency-55876559/consistency-55876559-1.1.0.tgz
+not to exist
+	at io.repsy.os.server.protocols.npm.protocol.NpmPublishStorageConsistencyIT.failedCommitLeavesTheStoredPackageAsItWas(NpmPublishStorageConsistencyIT.java:696)
+
+[INFO] 
+[INFO] Results:
+[INFO] 
+[ERROR] Failures: 
+[ERROR]   NpmPublishStorageConsistencyIT.failedCommitLeavesNoFilesForANewPackage:677 [the tarball of a publish whose commit failed is an orphan no row will ever reach] 
+Expecting path:
+  /tmp/repsy-it-storage835387947902486290/npm/01a16919-fd04-76a0-9255-3c589b9e5b52/consistency-77f06f99/consistency-77f06f99-1.0.0.tgz
+not to exist
+[ERROR]   NpmPublishStorageConsistencyIT.failedCommitLeavesTheStoredPackageAsItWas:696 
+Expecting path:
+  /tmp/repsy-it-storage835387947902486290/npm/01a1691a-0138-7183-8ae6-4fe6d22912b8/consistency-55876559/consistency-55876559-1.1.0.tgz
+not to exist
+[INFO] 
+[ERROR] Tests run: 2, Failures: 2, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] --- jacoco:0.8.15:report (report) @ repsy-backend ---
+[INFO] Loading execution data file /home/user/repsy/repsy-backend/target/jacoco.exec
+[INFO] Analyzed bundle 'repsy-backend' with 586 classes
+[INFO] 
+[INFO] --- checkstyle:3.6.0:check (default) @ repsy-backend ---
+[INFO] 

@@ -1,0 +1,9 @@
+14:03:51.187 == s3 s3-cut: fresh stack
+14:04:22.842 client base PUT chaos-base.jar -> 200 0.543499s
+14:04:23.155 client base PUT chaos-base.pom -> 200 0.296742s
+14:04:23.159 baseline deployed
+14:04:23.175 fault: limit_data 5 MB on s3
+14:04:23.924 client a PUT chaos-v1.jar -> 503 0.738910s
+14:04:24.022 client v2 PUT chaos-v2.jar -> 200 0.078981s
+14:04:24.155 client v2 PUT chaos-v2.pom -> 200 0.110289s
+14:04:53.631 check: pom_without_row=0 row_without_pom=0 jar_without_pom=0 tgz_without_row=0 row_without_tgz=0 usage_drift={'maven': 0, 'npm': 0} leftovers=0

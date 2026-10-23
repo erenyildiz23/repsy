@@ -1,0 +1,9 @@
+14:04:53.754 == s3 s3-hang: fresh stack
+14:05:25.297 client base PUT chaos-base.jar -> 200 0.582264s
+14:05:25.633 client base PUT chaos-base.pom -> 200 0.320100s
+14:05:25.640 baseline deployed
+14:05:25.651 fault: timeout(0) on s3
+14:07:25.664 client a PUT chaos-v1.jar -> 000 120.000957s
+14:07:25.796 client v2 PUT chaos-v2.jar -> 200 0.110623s
+14:07:25.943 client v2 PUT chaos-v2.pom -> 200 0.129639s
+14:07:55.484 check: pom_without_row=0 row_without_pom=0 jar_without_pom=0 tgz_without_row=0 row_without_tgz=0 usage_drift={'maven': 0, 'npm': 0} leftovers=0

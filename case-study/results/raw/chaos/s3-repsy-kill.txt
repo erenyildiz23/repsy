@@ -1,0 +1,30 @@
+14:02:35.548 == s3 repsy-kill: fresh stack
+14:03:06.831 client base PUT chaos-base.jar -> 200 0.463536s
+14:03:07.177 client base PUT chaos-base.pom -> 200 0.330939s
+14:03:07.181 baseline deployed
+14:03:08.100 client n2 npm publish kill2@1.0.0 -> 200 0.791534s
+14:03:08.103 client n4 npm publish kill4@1.0.0 -> 200 0.643689s
+14:03:08.106 client n1 npm publish kill1@1.0.0 -> 200 0.861602s
+14:03:08.132 client n3 npm publish kill3@1.0.0 -> 200 0.726906s
+14:03:08.140 client n5 npm publish kill5@1.0.0 -> 200 0.581919s
+14:03:08.300 fault: SIGKILL repsy
+14:03:08.345 client n7 npm publish kill7@1.0.0 -> 200 0.685711s
+14:03:08.322 client n6 npm publish kill6@1.0.0 -> 200 0.713030s
+14:03:08.507 client p3 PUT chaos-k3.pom -> 000 0.640500s
+14:03:08.510 client p1 PUT chaos-k1.pom -> 000 0.656889s
+14:03:08.514 client p5 PUT chaos-k5.pom -> 000 0.638050s
+14:03:08.518 client p4 PUT chaos-k4.pom -> 000 0.644047s
+14:03:08.525 client p2 PUT chaos-k2.pom -> 000 0.660260s
+14:03:08.531 client n8 npm publish kill8@1.0.0 -> 000 0.788158s
+14:03:08.537 client p6 PUT chaos-k6.pom -> 000 0.607358s
+14:03:08.511 client p10 PUT chaos-k10.pom -> 000 0.600897s
+14:03:08.540 client p8 PUT chaos-k8.pom -> 000 0.605700s
+14:03:08.530 client n10 npm publish kill10@1.0.0 -> 000 0.670106s
+14:03:08.530 client p9 PUT chaos-k9.pom -> 000 0.616433s
+14:03:08.538 client n9 npm publish kill9@1.0.0 -> 000 0.715272s
+14:03:08.542 client a PUT chaos-v1.jar -> 100 1.326681s
+14:03:08.538 client p7 PUT chaos-k7.pom -> 000 0.622774s
+14:03:35.350 repsy restarted
+14:03:35.984 client v2 PUT chaos-v2.jar -> 200 0.622453s
+14:03:36.187 client v2 PUT chaos-v2.pom -> 200 0.188502s
+14:03:51.003 check: pom_without_row=10 row_without_pom=1 jar_without_pom=0 tgz_without_row=2 row_without_tgz=0 usage_drift={'maven': 1046937, 'npm': -601784} leftovers=1

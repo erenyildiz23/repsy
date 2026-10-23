@@ -1,0 +1,26 @@
+14:01:26.478 == fs pg-reset: fresh stack
+14:01:57.755 client base PUT chaos-base.jar -> 200 0.412505s
+14:01:57.949 client base PUT chaos-base.pom -> 200 0.179154s
+14:01:57.952 baseline deployed
+14:01:57.966 fault: reset_peer on pg
+14:01:58.584 client b PUT chaos-v1.pom -> 500 0.605246s
+14:01:58.585 client a PUT chaos-v1.jar -> 500 0.604421s
+14:02:28.053 client c npm publish pgrst@1.0.0 -> 500 30.020630s
+14:02:31.136 client v2 PUT chaos-v2.jar -> 200 0.056176s
+14:02:31.224 client v2 PUT chaos-v2.pom -> 200 0.071458s
+14:02:35.403 check: pom_without_row=0 row_without_pom=0 jar_without_pom=0 tgz_without_row=0 row_without_tgz=0 usage_drift={'maven': 0, 'npm': 0} leftovers=0
+repsy-1  | 2026-10-23T14:01:58.536Z  WARN 1 --- [repsy-backend] [nio-9090-exec-8] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@7a631501 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+repsy-1  | 2026-10-23T14:01:58.541Z ERROR 1 --- [repsy-backend] [nio-9090-exec-7] i.r.o.s.e.services.ErrorResponseService  : 
+repsy-1  | 2026-10-23T14:01:58.543Z ERROR 1 --- [repsy-backend] [nio-9090-exec-6] i.r.o.s.e.services.ErrorResponseService  : 
+repsy-1  | 2026-10-23T14:01:59.044Z  WARN 1 --- [repsy-backend] [nio-9090-exec-8] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@74a4e43d (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+repsy-1  | 2026-10-23T14:01:59.548Z  WARN 1 --- [repsy-backend] [nio-9090-exec-8] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@709b7e71 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+repsy-1  | 2026-10-23T14:02:00.052Z  WARN 1 --- [repsy-backend] [nio-9090-exec-8] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@3599ee06 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+repsy-1  | 2026-10-23T14:02:00.555Z  WARN 1 --- [repsy-backend] [nio-9090-exec-8] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@57302ea9 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+repsy-1  | 2026-10-23T14:02:01.060Z  WARN 1 --- [repsy-backend] [nio-9090-exec-8] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@466bd7e (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+repsy-1  | 2026-10-23T14:02:01.564Z  WARN 1 --- [repsy-backend] [nio-9090-exec-8] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@2f252375 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+repsy-1  | 2026-10-23T14:02:02.068Z  WARN 1 --- [repsy-backend] [nio-9090-exec-8] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@55b61149 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+repsy-1  | 2026-10-23T14:02:28.039Z  WARN 1 --- [repsy-backend] [nio-9090-exec-8] org.hibernate.orm.jdbc.error             : HHH000247: ErrorCode: 0, SQLState: 08001
+repsy-1  | 2026-10-23T14:02:28.039Z  WARN 1 --- [repsy-backend] [nio-9090-exec-8] org.hibernate.orm.jdbc.error             : HikariPool-1 - Connection is not available, request timed out after 30001ms (total=0, active=0, idle=0, waiting=0)
+repsy-1  | 2026-10-23T14:02:28.039Z  WARN 1 --- [repsy-backend] [nio-9090-exec-8] org.hibernate.orm.jdbc.error             : HHH000247: ErrorCode: 0, SQLState: 08001
+repsy-1  | 2026-10-23T14:02:28.039Z  WARN 1 --- [repsy-backend] [nio-9090-exec-8] org.hibernate.orm.jdbc.error             : HikariPool-1 - Connection is not available, request timed out after 30001ms (total=0, active=0, idle=0, waiting=0)
+repsy-1  | 2026-10-23T14:02:28.044Z ERROR 1 --- [repsy-backend] [nio-9090-exec-8] i.r.o.s.e.services.ErrorResponseService  : 

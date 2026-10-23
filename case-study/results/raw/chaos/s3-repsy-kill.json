@@ -1,0 +1,36 @@
+{
+ "backend": "s3",
+ "objects": 30,
+ "maven": {
+  "versions": 2,
+  "pom_without_row": [
+   "com.example.chaos/chaos/k1",
+   "com.example.chaos/chaos/k10",
+   "com.example.chaos/chaos/k2",
+   "com.example.chaos/chaos/k3",
+   "com.example.chaos/chaos/k4",
+   "com.example.chaos/chaos/k5",
+   "com.example.chaos/chaos/k6",
+   "com.example.chaos/chaos/k7",
+   "com.example.chaos/chaos/k8",
+   "com.example.chaos/chaos/k9"
+  ],
+  "row_without_pom": [
+   "com.example.chaos/chaos/v2"
+  ],
+  "jar_without_pom": []
+ },
+ "npm": {
+  "versions": 8,
+  "tgz_without_row": [
+   "kill10@1.0.0",
+   "kill9@1.0.0"
+  ],
+  "row_without_tgz": []
+ },
+ "usage_drift": {
+  "maven": 1046937,
+  "npm": -601784
+ },
+ "leftovers": 1
+}
