@@ -1,0 +1,52 @@
+ Container repsy-cs-k6-run-32647f9b3f4d Creating 
+ Container repsy-cs-k6-run-32647f9b3f4d Created 
+time="2026-10-23T09:05:21Z" level=warning msg="Insufficient VUs, reached 100 active VUs and cannot initialize more" executor=constant-arrival-rate scenario=warmup
+
+
+  █ THRESHOLDS 
+
+    dropped_iterations
+    ✗ 'count==0' count=108
+
+    http_req_duration{phase:measure}
+    ✓ 'max>=0' max=1.6s
+
+    http_req_failed{phase:measure}
+    ✓ 'rate<0.01' rate=0.00%
+
+    http_reqs{phase:measure}
+    ✓ 'count>=0' count=1001
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 1394    46.424732/s
+    checks_succeeded...: 100.00% 1394 out of 1394
+    checks_failed......: 0.00%   0 out of 1394
+
+    ✓ status 200
+
+    HTTP
+    http_req_duration..............: avg=553.76ms med=167.33ms p(90)=1.26s    p(95)=2.64s    p(99)=4.14s max=4.72s
+      { expected_response:true }...: avg=553.76ms med=167.33ms p(90)=1.26s    p(95)=2.64s    p(99)=4.14s max=4.72s
+      { phase:measure }............: avg=170.71ms med=63.45ms  p(90)=475.14ms p(95)=665.92ms p(99)=1.06s max=1.6s 
+    http_req_failed................: 0.00%  0 out of 1394
+      { phase:measure }............: 0.00%  0 out of 1001
+    http_reqs......................: 1394   46.424732/s
+      { phase:measure }............: 1001   33.336554/s
+
+    EXECUTION
+    dropped_iterations.............: 108    3.596751/s
+    iteration_duration.............: avg=554.33ms med=167.74ms p(90)=1.26s    p(95)=2.64s    p(99)=4.14s max=4.72s
+    iterations.....................: 1394   46.424732/s
+    vus............................: 1      min=1         max=100
+    vus_max........................: 150    min=100       max=150
+
+    NETWORK
+    data_received..................: 148 kB 4.9 kB/s
+    data_sent......................: 1.8 MB 59 kB/s
+
+
+
+time="2026-10-23T09:05:48Z" level=error msg="thresholds on metrics 'dropped_iterations' have been crossed"
+

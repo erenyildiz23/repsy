@@ -16,6 +16,7 @@
 # them so the chaos scripts can add latency, cut or hang a connection. Every image is pinned by
 # digest (ADR-003) and every service has CPU and memory limits, so load runs are comparable.
 # Start with `docker compose -f case-study/compose.yml up -d --build` after `case-study/build.sh`.
+# Cores are pinned (4-core host): Repsy 0-1, PostgreSQL/S3/Toxiproxy 2, k6 3.
 name: repsy-cs
 
 services:
@@ -31,6 +32,7 @@ services:
       timeout: 5s
       retries: 30
     cpus: 1
+    cpuset: '2'
     mem_limit: 512m
 
   # pgsty/silo, a maintained MinIO fork: minio/minio left Docker Hub and quay.io refuses anonymous
@@ -49,6 +51,7 @@ services:
     ports:
       - '9000:9000'
     cpus: 1
+    cpuset: '2'
     mem_limit: 512m
 
   toxiproxy:
@@ -64,6 +67,7 @@ services:
       s3:
         condition: service_healthy
     cpus: 0.5
+    cpuset: '2'
     mem_limit: 128m
 
   repsy:
@@ -102,7 +106,27 @@ services:
       retries: 60
       start_period: 10s
     cpus: 2
+    cpuset: '0,1'
     mem_limit: 1g
+
+  # The load generator, on a core of its own (REFERENCE §9.5). Not started by `up`: the load
+  # scripts run it with `docker compose run --rm k6 ...`.
+  k6:
+    image: grafana/k6@sha256:e66db15b860113878fa74670e31f5e274830b7b6e42c8bff28b2f2d86a257603
+    profiles: ['load']
+    # root, so it can write the summaries into the bind-mounted results directory.
+    user: '0'
+    working_dir: /work
+    volumes:
+      - ./load:/work/load:ro
+      - ./results:/work/results
+    environment:
+      BASE_URL: http://repsy:9090
+      REPSY_AUTH: admin:${REPSY_ADMIN_PASSWORD}
+    cpuset: '3'
+    cpus: 1
+    # 50 MiB bodies: one copy per VU plus the request buffers (k6 #2311).
+    mem_limit: 4g
 
 volumes:
   repsy-data:
