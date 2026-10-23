@@ -1,0 +1,5 @@
+repsy-cs-k6-run-3eed3423846c cpu=5.29% mem=1.094GiB / 4GiB net=5.14MB / 4.09GB block=0B / 0B
+repsy-cs-repsy-1 cpu=24.83% mem=552MiB / 1GiB net=4.84GB / 4.84GB block=0B / 0B
+repsy-cs-toxiproxy-1 cpu=10.53% mem=8.516MiB / 128MiB net=4.84GB / 4.8GB block=0B / 0B
+repsy-cs-postgres-1 cpu=6.12% mem=75.52MiB / 512MiB net=3.47MB / 2.5MB block=0B / 0B
+repsy-cs-s3-1 cpu=29.00% mem=260.5MiB / 512MiB net=4.73GB / 3.74MB block=0B / 0B
